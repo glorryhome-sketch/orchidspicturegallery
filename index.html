@@ -124,6 +124,7 @@ footer{background:#3a2e25;color:#f7f2e9;padding:50px 5% 20px;margin-top:50px}
 .cp h4{margin:0 0 2px;font:700 15px var(--serif)}
 .adm{display:inline-block;background:var(--brown);color:#fff;border:0;border-radius:20px;padding:7px 15px;font-weight:600;font-size:12px}
 .adm.show{display:inline-block}
+#adm{display:none}#adm.show{display:inline-block}
 #fed{display:none;margin-top:10px}#fed.show{display:inline-block}
 .ov.dr{justify-content:flex-end;padding:0}
 .drw{background:var(--white);width:min(430px,100%);height:100%;height:100dvh;overflow:auto;padding:20px;display:flex;flex-direction:column;border-left:1px solid #e2d2bf}
@@ -546,11 +547,17 @@ function persist(){S.v=Date.now();try{localStorage.setItem("opg_data",JSON.strin
 var newPhoto=null;
 function shrink(f,cb){var r=new FileReader();r.onload=function(){var im=new Image();im.onload=function(){var m=900,k=Math.min(1,m/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);var x=c.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,c.width,c.height);x.drawImage(im,0,0,c.width,c.height);cb(c.toDataURL("image/jpeg",.82))};im.onerror=function(){$("amsg").textContent="This file is not a valid image."};im.src=r.result};r.readAsDataURL(f)}
 $("ac").innerHTML=CATS.slice(1).map(function(c){return '<option>'+c+'</option>'}).join("");
+/* Admin button is hidden from customers. Open yourdomain/#admin once on your own device to show it. */
+function admGate(){var k="opg_admin",on=false,asked=/(^|[#?&])admin($|[=&])/i.test(location.hash+location.search);
+ try{if(asked)localStorage.setItem(k,"1");on=localStorage.getItem(k)==="1"}catch(e){on=asked}
+ $("adm").classList.toggle("show",on);
+ if(asked&&!ADM)openM("lg")}
+admGate();window.addEventListener("hashchange",admGate);
 $("adm").onclick=function(){ADM?openM("ap"):openM("lg")};
 $("lf").onsubmit=function(e){e.preventDefault();
  if(hash($("lp").value)===S.h){ADM=true;$("lp").value="";$("lm").textContent="";$("fed").classList.add("show");$("adm").textContent="⚙ Admin Panel";render();openM("ap")}
  else $("lm").textContent="Wrong password. Try again."};
-$("lo").onclick=function(){ADM=false;$("fed").classList.remove("show");$("adm").textContent="⚙ Admin";render();closeAll()};
+$("lo").onclick=function(){ADM=false;$("fed").classList.remove("show");$("adm").textContent="⚙ Admin";try{localStorage.removeItem("opg_admin")}catch(e){}$("adm").classList.remove("show");try{history.replaceState(null,"",location.pathname)}catch(e){}render();closeAll()};
 var editId=null,newId=0;
 function openA(id){
  var p=id?prod(id):null;editId=id||null;
