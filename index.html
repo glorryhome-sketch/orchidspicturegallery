@@ -286,11 +286,11 @@ footer{background:#3a2e25;color:#f7f2e9;padding:50px 5% 20px;margin-top:50px}
  <div class="mh"><h3 id="aft">Add New Product</h3><button class="x" data-close aria-label="Close">✕</button></div>
  <form id="af">
   <div class="fgp"><label for="an">Product Name *</label><input id="an" required placeholder="e.g. Magic Mirror"></div>
-  <div class="fgp"><label for="apr">Starting Price (₹) *</label><input id="apr" type="number" min="0" step="1" required placeholder="449"></div>
+  <div class="fgp"><label for="av">Varieties &amp; Prices * (one per line: Name | Price)</label><textarea id="av" required rows="5" placeholder="Mini Size (4X4 INCHES) | 199"></textarea></div>
   <div class="fgp"><label for="ac">Category</label><select id="ac"></select></div>
   <div class="fgp"><label for="ad2">Description</label><textarea id="ad2" placeholder="Brief description..."></textarea></div>
-  <div class="fgp"><label for="aph">Product photo (browse from your computer)</label><input id="aph" type="file" accept="image/*"><img class="prev" id="apv" alt="Photo preview"></div>
-  <div class="fgp"><label for="aim">Or image path (photo saved in your images folder)</label><input id="aim" placeholder="images/products/1.jpg"></div>
+  <div class="fgp"><label for="aph">Product photo (browse it here; it auto-downloads with the right file name to upload on GitHub)</label><input id="aph" type="file" accept="image/*"><img class="prev" id="apv" alt="Photo preview"></div>
+  <div class="fgp"><label for="aim">Image path on GitHub (auto-filled, no need to change)</label><input id="aim" placeholder="images/products/1.jpg"></div>
   <button class="go br" type="submit" id="asv">Save Product</button>
   <div class="msg" id="amsg" role="status"></div>
  </form>
@@ -338,7 +338,7 @@ footer{background:#3a2e25;color:#f7f2e9;padding:50px 5% 20px;margin-top:50px}
   <button class="go gr" id="rs" style="margin:0">Reset to data.js</button>
   <button class="go gr" id="lo" style="margin:0">Logout</button>
  </div>
- <p class="msg">Edits show on this device straight away. To show them to customers, download data.js and upload it to your GitHub repository (replace the old data.js).</p>
+ <p class="msg">Edits show on this device straight away. To show them to customers: (1) download data.js and replace it in GitHub, (2) upload the downloaded photo files into the images/products folder in GitHub.</p>
 </div></div>
 
 <div class="ov" id="bm"><div class="md" role="dialog" aria-modal="true" aria-label="Edit banners">
@@ -399,11 +399,16 @@ var IC={
  heart:'<path d="M32 54C10 38 8 22 18 16c6-3 12 0 14 6 2-6 8-9 14-6 10 6 8 22-14 38Z"/>',
  crown:'<path d="M10 46 14 20l12 14 6-18 6 18 12-14 4 26Z"/><path d="M10 54h44"/>'
 };
-function art(p){return '<div class="ph" style="background:linear-gradient(150deg,'+p.g[0]+','+p.g[1]+')"><svg viewBox="0 0 64 64" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+IC[p.i]+'</svg>'+(p.img?'<img class="pim" loading="lazy" decoding="async" src="'+esc(p.img)+'" alt="" onerror="this.remove()">':'')+'</div>'}
+function art(p){return '<div class="ph" style="background:linear-gradient(150deg,'+p.g[0]+','+p.g[1]+')"><svg viewBox="0 0 64 64" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+IC[p.i]+'</svg>'+'<img class="pim" loading="lazy" decoding="async" src="'+esc(imgSrc(p))+'" alt="" onerror="this.remove()">'+'</div>'}
 var CATS=["All Products","Modern trends","Favourites","Frame Stories","Memory Books","Glow Magic","Surprise gifts","Made for Two","Lovebirds","Tiny Treasures","King's Corner","Queen's Corner"];
 var VAR=[["Mini Size (4X4 INCHES)",199],["Medium Size (6X6 INCHES)",349],["Standard Size (A4)",449],["Large Size (A3)",849]];
+function VR(p){return p&&p.v&&p.v.length?p.v:VAR}
+function CV(c){var a=VR(prod(c.id));return a[c.v]||a[0]}
+function pmin(p){var a=VR(p);return p.v&&p.v.length?Math.min.apply(null,a.map(function(v){return v[1]})):p.p}
+function imgSrc(p){var s=p.img||"images/products/"+p.id+".jpg";return LI[s]||s}
 function hash(t){var h1=0xdeadbeef,h2=0x41c6ce57,c;for(var i=0;i<t.length;i++){c=t.charCodeAt(i);h1=Math.imul(h1^c,2654435761);h2=Math.imul(h2^c,1597334677)}h1=Math.imul(h1^(h1>>>16),2246822507)^Math.imul(h2^(h2>>>13),3266489909);h2=Math.imul(h2^(h2>>>16),2246822507)^Math.imul(h1^(h1>>>13),3266489909);return(4294967296*(2097151&h2)+(h1>>>0)).toString(36)}
 /* Data comes from data.js. Admin edits are kept in this browser until you download a new data.js. */
+var LI={};try{LI=JSON.parse(localStorage.getItem("opg_imgs"))||{}}catch(e){}
 var S=(function(){var d=window.ORCHIDS_DATA||{P:[],F:{a:"",p:"",e:""},B:[],h:"",v:0},l=null;try{l=JSON.parse(localStorage.getItem("opg_data"))}catch(e){}return l&&l.P&&l.v>=(d.v||0)?l:d})();
 var P=S.P,F=S.F,SL=S.B;
 function waNum(){var d=F.p.replace(/\D/g,"");return d.length===10?"91"+d:d}
@@ -444,13 +449,13 @@ function render(){
   var inCat=sel==="All Products"||sel==="Modern trends"||(sel==="Favourites"?p.id%2===0:p.c===sel);
   return inCat&&(!favOnly||fav[p.id])&&(p.n+" "+p.d+" "+p.c).toLowerCase().indexOf(q)>-1});
  var s=$("sort").value;
- if(s==="l")l.sort(function(a,b){return a.p-b.p});
- if(s==="h")l.sort(function(a,b){return b.p-a.p});
+ if(s==="l")l.sort(function(a,b){return pmin(a)-pmin(b)});
+ if(s==="h")l.sort(function(a,b){return pmin(b)-pmin(a)});
  if(s==="a")l.sort(function(a,b){return a.n.localeCompare(b.n)});
  $("hd").textContent=sel;
  $("cnt").innerHTML="Showing <strong>"+(l.length?"1 – "+l.length+" of "+l.length:"0")+"</strong> products";
  $("grid").innerHTML=l.length?l.map(function(p){
-  return '<article class="pr"><div style="position:relative">'+art(p)+'<button class="heart'+(fav[p.id]?" on":"")+'" data-f="'+p.id+'" aria-label="Toggle favourite">'+(fav[p.id]?"♥":"♡")+'</button></div><div class="inf"><div class="pn">'+p.n+'</div><div class="pd">'+p.d+'</div><div class="bt"><span class="price">'+inr(p.p)+'</span><button class="buy" data-b="'+p.id+'">Buy Now</button></div>'+(ADM?'<div class="ac"><button class="e" data-e="'+p.id+'">✎ Edit</button><button class="d" data-d="'+p.id+'">🗑 Delete</button></div>':'')+'</div></article>'}).join(""):'<p class="empty">No products found. Try another search or category.</p>';
+  return '<article class="pr"><div style="position:relative">'+art(p)+'<button class="heart'+(fav[p.id]?" on":"")+'" data-f="'+p.id+'" aria-label="Toggle favourite">'+(fav[p.id]?"♥":"♡")+'</button></div><div class="inf"><div class="pn">'+p.n+'</div><div class="pd">'+p.d+'</div><div class="bt"><span class="price">'+inr(pmin(p))+'</span><button class="buy" data-b="'+p.id+'">Buy Now</button></div>'+(ADM?'<div class="ac"><button class="e" data-e="'+p.id+'">✎ Edit</button><button class="d" data-d="'+p.id+'">🗑 Delete</button></div>':'')+'</div></article>'}).join(""):'<p class="empty">No products found. Try another search or category.</p>';
 }
 $("grid").onclick=function(e){
  var h=e.target.closest("[data-f]"),b=e.target.closest("[data-b]"),ed=e.target.closest("[data-e]"),dl=e.target.closest("[data-d]");
@@ -466,12 +471,12 @@ function openP(id){
  $("pi").outerHTML=art(cur).replace('class="ph"','class="ph" id="pi"');
  $("pt").textContent=cur.n;
  ["cd","cw","cq","cs"].forEach(function(k){$(k).value=""});$("cph").value="";$("pc").textContent="(0 Selected)";
- $("vg").innerHTML=VAR.map(function(v,i){return '<button type="button" class="vb" data-v="'+i+'"><b>'+inr(v[1])+'</b><span>'+v[0]+'</span></button>'}).join("");
+ $("vg").innerHTML=VR(cur).map(function(v,i){return '<button type="button" class="vb" data-v="'+i+'"><b>'+inr(v[1])+'</b><span>'+v[0]+'</span></button>'}).join("");
  pv();$("pvm").classList.add("open");
 }
 function pv(){
  [].forEach.call($("vg").children,function(b,i){b.classList.toggle("on",i===vi)});
- var v=VAR[vi][1];$("pp").textContent=inr(v);$("po").textContent=inr(v*1.4);$("qn").textContent=qty;
+ var v=VR(cur)[vi][1];$("pp").textContent=inr(v);$("po").textContent=inr(v*1.4);$("qn").textContent=qty;
 }
 $("vg").onclick=function(e){var b=e.target.closest(".vb");if(b){vi=+b.dataset.v;pv()}};
 $("qm").onclick=function(){if(qty>1){qty--;pv()}};$("qp").onclick=function(){if(qty<20){qty++;pv()}};
@@ -482,13 +487,13 @@ function pm(){return document.querySelector("[name=pm]:checked").value}
 
 $("buy").onclick=function(){
  $("pvm").classList.remove("open");
- var v=VAR[vi];
+ var v=VR(cur)[vi];
  $("cpv").innerHTML=art(cur)+'<div><h4>'+cur.n+'</h4><div>'+inr(v[1])+' × '+qty+' = <b>'+inr(v[1]*qty)+'</b></div><div style="color:#777;font-size:12px">Size: '+v[0]+'</div><div style="color:#28a745;font-size:11px">Payment: '+pm()+'</div></div>';
  $("com").classList.add("open");
 };
 $("cf").onsubmit=function(e){
  e.preventDefault();
- var v=VAR[vi],n=$("cph").files.length,L=[];
+ var v=VR(cur)[vi],n=$("cph").files.length,L=[];
  if($("cd").value)L.push("- Memorable Date: "+$("cd").value);
  if($("cw").value.trim())L.push("- Wish with Name: "+$("cw").value.trim());
  if($("cq").value.trim())L.push("- Quotes/Message: "+$("cq").value.trim());
@@ -508,11 +513,11 @@ function prod(id){return P.filter(function(p){return p.id===id})[0]}
 function esc(t){return String(t).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
 function drawCart(){
  CART=CART.filter(function(c){return prod(c.id)});
- var n=0,t=0;CART.forEach(function(c){n+=c.q;t+=c.q*VAR[c.v][1]});
+ var n=0,t=0;CART.forEach(function(c){n+=c.q;t+=c.q*CV(c)[1]});
  $("cc").textContent=n;$("cc").style.display=n?"block":"none";$("ct").textContent=inr(t);
  $("cartf").hidden=!CART.length;
  $("cl").innerHTML=CART.length?CART.map(function(c,i){var p=prod(c.id);
-  return '<div class="ci">'+art(p)+'<div><h4>'+esc(p.n)+'</h4><small>'+VAR[c.v][0]+'</small>'+(c.w?'<small>Wish: '+esc(c.w)+'</small>':'')+(c.d?'<small>Date: '+esc(c.d)+'</small>':'')+(c.n?'<small>'+c.n+' photo(s) to send in chat</small>':'')+'<div class="cq"><button data-m="'+i+'" aria-label="Decrease">-</button><b>'+c.q+'</b><button data-p="'+i+'" aria-label="Increase">+</button><b style="margin-left:6px">'+inr(c.q*VAR[c.v][1])+'</b><a data-r="'+i+'" role="button" tabindex="0">Remove</a></div></div></div>'}).join(""):'<p class="empty">Your cart is empty. Add a gift to get started.</p>';
+  return '<div class="ci">'+art(p)+'<div><h4>'+esc(p.n)+'</h4><small>'+CV(c)[0]+'</small>'+(c.w?'<small>Wish: '+esc(c.w)+'</small>':'')+(c.d?'<small>Date: '+esc(c.d)+'</small>':'')+(c.n?'<small>'+c.n+' photo(s) to send in chat</small>':'')+'<div class="cq"><button data-m="'+i+'" aria-label="Decrease">-</button><b>'+c.q+'</b><button data-p="'+i+'" aria-label="Increase">+</button><b style="margin-left:6px">'+inr(c.q*CV(c)[1])+'</b><a data-r="'+i+'" role="button" tabindex="0">Remove</a></div></div></div>'}).join(""):'<p class="empty">Your cart is empty. Add a gift to get started.</p>';
  sv();
 }
 $("cl").onclick=function(e){var m=e.target.dataset;
@@ -527,9 +532,9 @@ $("atc").onclick=function(){
 };
 $("cartf").onsubmit=function(e){
  e.preventDefault();var t=0;
- var L=CART.map(function(c,i){var p=prod(c.id),line=c.q*VAR[c.v][1];t+=line;
+ var L=CART.map(function(c,i){var p=prod(c.id),line=c.q*CV(c)[1];t+=line;
   var x=[];if(c.w)x.push("Wish: "+c.w);if(c.d)x.push("Date: "+c.d);if(c.qt)x.push("Message: "+c.qt);if(c.s)x.push("Song: "+c.s);if(c.n)x.push("Photos: "+c.n+" (will send in chat)");
-  return (i+1)+". "+p.n+" ("+VAR[c.v][0]+") x"+c.q+" = "+inr(line)+(x.length?"\n   "+x.join("\n   "):"")}).join("\n");
+  return (i+1)+". "+p.n+" ("+CV(c)[0]+") x"+c.q+" = "+inr(line)+(x.length?"\n   "+x.join("\n   "):"")}).join("\n");
  var m="*✨ New Order from Orchids Picture Gallery! ✨*\n\n🛒 *Items:*\n"+L+"\n\n💰 *Total:* "+inr(t)+"\n💳 *Payment:* "+$("cpm").value+"\n\n👤 *Customer:*\n- Name: "+$("cn").value.trim()+"\n- Phone: "+$("cp2").value.trim()+"\n\n🏠 *Delivery Address:*\n"+$("ca").value.trim()+"\n\nPlease confirm my order and share the payment and delivery process.";
  window.open("https://wa.me/"+waNum()+"?text="+encodeURIComponent(m),"_blank","noopener");
  CART=[];drawCart();$("cartf").reset();$("cart").classList.remove("open");
@@ -559,25 +564,32 @@ $("lf").onsubmit=function(e){e.preventDefault();
  else $("lm").textContent="Wrong password. Try again."};
 $("lo").onclick=function(){ADM=false;$("fed").classList.remove("show");$("adm").textContent="⚙ Admin";try{localStorage.removeItem("opg_admin")}catch(e){}$("adm").classList.remove("show");try{history.replaceState(null,"",location.pathname)}catch(e){}render();closeAll()};
 var editId=null,newId=0;
+function dlPhoto(d,n){var a=document.createElement("a");a.href=d;a.download=n;document.body.appendChild(a);a.click();a.remove()}
 function openA(id){
  var p=id?prod(id):null;editId=id||null;
  newId=P.reduce(function(m,x){return Math.max(m,x.id)},0)+1;
  $("aft").textContent=p?"Edit Product":"Add New Product";
- $("an").value=p?p.n:"";$("apr").value=p?p.p:"";$("ac").value=p?p.c:CATS[3];$("ad2").value=p?p.d:"";
+ $("an").value=p?p.n:"";$("ac").value=p?p.c:CATS[3];$("ad2").value=p?p.d:"";
+ $("av").value=VR(p).map(function(v){return v[0]+" | "+v[1]}).join("\n");
  newPhoto=null;$("aph").value="";
- $("aim").value=p?((p.img&&p.img.indexOf("data:")!==0)?p.img:""):"images/products/"+newId+".jpg";$("amsg").textContent=p&&p.img&&p.img.indexOf("data:")===0?"Current photo was uploaded from your computer. Browse to replace it.":"";
- if(p&&p.img){$("apv").src=p.img;$("apv").style.display="block"}else $("apv").style.display="none";
+ $("aim").value=p&&p.img&&p.img.indexOf("data:")!==0?p.img:"images/products/"+(p?p.id:newId)+".jpg";
+ $("amsg").textContent="";
+ var pr=$("apv");pr.onerror=function(){this.style.display="none"};pr.onload=function(){this.style.display="block"};
+ pr.src=imgSrc(p||{id:newId,img:$("aim").value});
  openM("am");$("an").focus();
 }
 $("ap1").onclick=function(){openA()};
-$("aph").onchange=function(){var f=this.files[0];if(!f)return;$("amsg").textContent="Preparing photo...";shrink(f,function(d){newPhoto=d;$("apv").src=d;$("apv").style.display="block";$("amsg").textContent="Photo ready. Click Save Product."})};
+$("aph").onchange=function(){var f=this.files[0];if(!f)return;$("amsg").textContent="Preparing photo...";shrink(f,function(d){newPhoto=d;$("apv").src=d;$("apv").style.display="block";$("amsg").textContent="Photo ready. Click Save Product - it will download as "+$("aim").value.split("/").pop()+". Upload that file to GitHub in images/products."})};
 $("af").onsubmit=function(e){e.preventDefault();
- var old=editId?prod(editId):null,img=newPhoto;
- if(!img){img=$("aim").value.trim()||(old&&old.img&&old.img.indexOf("data:")===0?old.img:"")}
- var o={n:$("an").value.trim(),p:Number($("apr").value)||0,c:$("ac").value,d:$("ad2").value.trim(),img:img};
+ var V=[];$("av").value.split("\n").forEach(function(l){var i=l.lastIndexOf("|");if(i<1)return;var n=l.slice(0,i).trim(),pr=Number(l.slice(i+1).replace(/[^\d.]/g,""));if(n&&pr>0)V.push([n,pr])});
+ if(!V.length){$("amsg").textContent="Add at least one variety like:  Mini Size | 199";return}
+ var old=editId?prod(editId):null,id=editId||newId,path=$("aim").value.trim()||"images/products/"+id+".jpg";
+ if(!newPhoto&&old&&old.img&&old.img.indexOf("data:")===0)path=old.img;
+ var o={n:$("an").value.trim(),c:$("ac").value,d:$("ad2").value.trim(),v:V,p:Math.min.apply(null,V.map(function(v){return v[1]})),img:path};
+ if(newPhoto){LI[path]=newPhoto;try{localStorage.setItem("opg_imgs",JSON.stringify(LI))}catch(x){}dlPhoto(newPhoto,path.split("/").pop())}
  if(editId)Object.assign(prod(editId),o);
  else{o.id=newId;o.i="gift";o.g=["#D9B5D1","#7B3F7A"];P.unshift(o)}
- if(!persist())alert("Browser storage is full. Use a smaller photo, or use an image path instead.");
+ if(!persist())alert("Browser storage is full. Use a smaller photo.");
  render();drawCart();closeAll();openM("ap")};
 function delP(id){if(!confirm("Delete this product?"))return;S.P=P=P.filter(function(x){return x.id!==id});persist();render();drawCart()}
 $("ap2").onclick=function(){
@@ -594,7 +606,7 @@ $("pf").onsubmit=function(e){e.preventDefault();S.h=hash($("np").value);persist(
 $("dl").onclick=function(){persist();
  var a=document.createElement("a");a.href=URL.createObjectURL(new Blob(["window.ORCHIDS_DATA = "+JSON.stringify(S,null,1)+";\n"],{type:"text/javascript"}));
  a.download="data.js";document.body.appendChild(a);a.click();a.remove()};
-$("rs").onclick=function(){if(confirm("Discard changes made in this browser and go back to data.js?")){try{localStorage.removeItem("opg_data")}catch(e){}location.reload()}};
+$("rs").onclick=function(){if(confirm("Discard changes made in this browser and go back to data.js?")){try{localStorage.removeItem("opg_data");localStorage.removeItem("opg_imgs")}catch(e){}location.reload()}};
 
 /* closing */
 document.querySelectorAll("[data-close]").forEach(function(b){b.onclick=function(){b.closest(".ov").classList.remove("open")}});
