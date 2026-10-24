@@ -523,7 +523,7 @@ function drawThm(){clearInterval(SS.t);var tk=++SS.n,a=ims(cur),pi=$("pi");$("th
   play()}}
 function openP(id){
  cur=P.filter(function(p){return p.id===id})[0];qty=1;vi=0;
- $("pi").outerHTML=art(cur).replace('class="ph"','class="ph" id="pi"');drawThm(0);$("pdsc").innerHTML=cur.long?"<h4>Description</h4>"+fmtD(cur.long):"";$("atc").disabled=$("buy").disabled=!!cur.so;
+ $("pi").outerHTML=art(cur).replace('class="ph"','class="ph" id="pi"');drawThm(0);ev("view_item",{item_name:cur.n});$("pdsc").innerHTML=cur.long?"<h4>Description</h4>"+fmtD(cur.long):"";$("atc").disabled=$("buy").disabled=!!cur.so;
  $("pt").textContent=cur.n;
  ["cd","cq"].forEach(function(k){$(k).value=""});$("cph").value="";$("pc").textContent="(0 Selected)";
  $("vg").innerHTML=VR(cur).map(function(v,i){return '<button type="button" class="vb" data-v="'+i+'"><b>'+inr(v[1])+'</b><span>'+v[0]+'</span></button>'}).join("");
@@ -718,6 +718,12 @@ function cardSlides(){clearInterval(CT);var L=[];
  if(!L.length)return;
  CT=setInterval(function(){L.forEach(function(d){if(!d.isConnected||d.matches(":hover"))return;var im=d.querySelectorAll(".sl");if(im.length<2)return;var k=[].findIndex.call(im,function(e){return e.classList.contains("on")});im.forEach(function(e,j){e.classList.toggle("on",j===(k+1)%im.length)})})},3000)}
 var _rn=render;render=function(){_rn.apply(this,arguments);cardSlides()};
+var GA_ID=""; /* paste your Google Analytics Measurement ID here, e.g. G-ABC123XYZ9 */
+function ev(n,o){try{if(window.gtag)window.gtag("event",n,o||{})}catch(e){}}
+(function(){var own=false;try{own=!!localStorage.getItem("opg_admin")}catch(e){}if(!GA_ID||own)return;
+ window.dataLayer=window.dataLayer||[];window.gtag=function(){window.dataLayer.push(arguments)};window.gtag("js",new Date());window.gtag("config",GA_ID);
+ var g=document.createElement("script");g.async=true;g.src="https://www.googletagmanager.com/gtag/js?id="+GA_ID;document.head.appendChild(g)})();
+[["atc","onclick","add_to_cart",1],["cf","onsubmit","order_buy_now",1],["cartf","onsubmit","order_from_cart",0]].forEach(function(x){var el=$(x[0]),f=el&&el[x[1]];if(f)el[x[1]]=function(){ev(x[2],x[3]?{item_name:cur.n}:{});return f.apply(this,arguments)}});
 function applyLogo(){var im=document.querySelector(".bl");if(!im)return;var p=S.L||"images/logo.png";im.src=LI[p]||(p+(S.lv?"?v="+S.lv:""))}
 function shrinkPng(f,cb){var r=new FileReader();r.onload=function(){var im=new Image();im.onload=function(){var k=Math.min(1,600/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);c.getContext("2d").drawImage(im,0,0,c.width,c.height);cb(c.toDataURL("image/png"))};im.onerror=function(){$("lgmsg").textContent="This file is not a valid image."};im.src=r.result};r.readAsDataURL(f)}
 var newLogo=null;
