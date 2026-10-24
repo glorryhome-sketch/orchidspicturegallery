@@ -622,6 +622,11 @@ $("lf").onsubmit=function(e){e.preventDefault();var tok=$("lp").value.trim(),r="
   ADM=true;m.textContent="";$("fed").classList.add("show");$("adm").textContent="⚙ Admin Panel";render();openM("ap")}).catch(function(){m.textContent="Token wrong, expired, or no write access to this repository."})};
 $("lo").onclick=function(){ADM=false;$("fed").classList.remove("show");$("adm").textContent="⚙ Admin";try{localStorage.removeItem("opg_admin")}catch(e){}$("adm").classList.remove("show");try{history.replaceState(null,"",location.pathname)}catch(e){}render();closeAll()};
 var editId=null,newId=0,newPhotos=[];
+function parseV(t){var V=[];function nm(x){return Number(String(x||"").replace(/[^\d.]/g,""))}
+ String(t).split("\n").forEach(function(l){l=l.trim();if(!l)return;var n,a,b,q;
+  if(l.indexOf("|")>-1){q=l.split("|");n=q[0].trim();a=nm(q[1]);b=nm(q[2])}
+  else{q=/^(.*?)\s+₹?\s*([\d,]+(?:\.\d+)?)(?:\s+₹?\s*([\d,]+(?:\.\d+)?))?\s*$/.exec(l);if(!q)return;n=q[1].trim();a=nm(q[2]);b=nm(q[3])}
+  if(n&&a>0){var lo=b>0?Math.min(a,b):a,hi=b>0?Math.max(a,b):0;V.push(hi>lo?[n,lo,hi]:[n,lo])}});return V}
 function dlPhoto(d,n){var a=document.createElement("a");a.href=d;a.download=n;document.body.appendChild(a);a.click();a.remove()}
 function prevs(a){$("apv").innerHTML=a.map(function(s){return '<img src="'+esc(s)+'" alt="" style="width:70px;height:70px;object-fit:cover;border-radius:6px;border:1px solid #d8cbbe" onerror="this.remove()">'}).join("")}
 function openA(id){
@@ -642,8 +647,8 @@ $("aph").onchange=function(){var fs=[].slice.call(this.files,0,6);if(!fs.length)
   $("aim").value=fs.map(function(_,k){return "images/products/"+id+(k?"-"+(k+1):"")+".jpg"}).join("\n");prevs(newPhotos);
   $("amsg").textContent=""+n+" photo(s) ready. Click Save Product, then Publish to GitHub."}})})};
 $("af").onsubmit=function(e){e.preventDefault();
- var V=[];$("av").value.split("\n").forEach(function(l){var q=l.split("|"),n=q[0].trim(),pr=Number((q[1]||"").replace(/[^\d.]/g,"")),mr=Number((q[2]||"").replace(/[^\d.]/g,""));if(n&&pr>0)V.push(mr>pr?[n,pr,mr]:[n,pr])});
- if(!V.length){$("amsg").textContent="Add at least one variety like:  Mini Size | 199 | 299";return}
+ $("amsg").style.color="";var V=parseV($("av").value);
+ if(!V.length){$("amsg").style.color="#c0392b";$("amsg").textContent="Could not read the varieties. Write each line like:  Mini Size | 199 | 299   (name | offer price | MRP)";return}
  var old=editId?prod(editId):null,id=editId||newId;
  var paths=$("aim").value.split("\n").map(function(x){return x.trim()}).filter(Boolean);
  if(!paths.length)paths=["images/products/"+id+".jpg"];
