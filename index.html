@@ -220,7 +220,7 @@ footer{background:#3a2e25;color:#f7f2e9;padding:50px 5% 20px;margin-top:50px}
 </head>
 <body>
 <header>
- <a class="brand" href="#top" aria-label="Orchids Picture Gallery home"><img class="bl" src="images/logo.png" alt="Orchids Picture Gallery" onerror="this.parentNode.classList.add('nologo');this.remove()"><span class="bfb"><div class="logo"></div><div class="bn">ORCHIDS<small>PICTURE GALLERY</small></div></span></a>
+ <a class="brand" href="#top" aria-label="Orchids Picture Gallery home"><img class="bl" src="images/logo.png" alt="Orchids Picture Gallery" onload="this.parentNode.classList.remove('nologo');this.style.display=''" onerror="this.parentNode.classList.add('nologo');this.style.display='none'"><span class="bfb"><div class="logo"></div><div class="bn">ORCHIDS<small>PICTURE GALLERY</small></div></span></a>
  <nav aria-label="Main"><a class="on" href="#top">Home</a><a href="#shop">Shop</a><a href="#shop">Gallery</a><a href="#about">About</a><a href="#about">Contact</a></nav>
  <div class="hr">
   <label class="search"><span aria-hidden="true">⌕</span><input id="q" type="search" placeholder="Search products..." aria-label="Search products"></label>
@@ -340,6 +340,7 @@ footer{background:#3a2e25;color:#f7f2e9;padding:50px 5% 20px;margin-top:50px}
  <div class="fgp">
   <button class="go br" id="ap1" style="margin:0">＋ Add New Product</button>
   <button class="go br" id="ap5" style="margin:0">Manage Categories</button>
+  <button class="go br" id="ap7" style="margin:0">Edit Logo</button>
   <button class="go br" id="ap2" style="margin:0">Edit Banner Slides</button>
   <button class="go br" id="ap3" style="margin:0">Edit Contact Info</button>
   <button class="go br" id="ap6" style="margin:0">🚀 Publish to GitHub</button>
@@ -348,6 +349,13 @@ footer{background:#3a2e25;color:#f7f2e9;padding:50px 5% 20px;margin-top:50px}
   <button class="go gr" id="lo" style="margin:0">Logout</button>
  </div>
  <p class="msg">Edits show on this device straight away. To show them to customers, click Publish to GitHub (photos and data.js upload automatically).</p>
+</div></div>
+
+<div class="ov" id="lgm"><div class="md" role="dialog" aria-modal="true" aria-label="Edit logo">
+ <div class="mh"><h3>Edit Logo</h3><button class="x" data-close aria-label="Close">✕</button></div>
+ <form id="lgf"><div class="fgp"><label for="lgi">Choose logo (PNG with transparent background looks best)</label><input id="lgi" type="file" accept="image/*"></div>
+ <div style="background:#eee;border-radius:10px;padding:14px;text-align:center;margin:8px 0"><img id="lgp" alt="Logo preview" style="max-height:80px;max-width:100%"></div>
+ <button class="go br" type="submit">Save Logo</button><div class="msg" id="lgmsg" role="status"></div></form>
 </div></div>
 
 <div class="ov" id="gm"><div class="md" role="dialog" aria-modal="true" aria-label="Publish to GitHub">
@@ -691,7 +699,15 @@ function cardSlides(){clearInterval(CT);var L=[];
  if(!L.length)return;
  CT=setInterval(function(){L.forEach(function(d){if(!d.isConnected||d.matches(":hover"))return;var im=d.querySelectorAll(".sl");if(im.length<2)return;var k=[].findIndex.call(im,function(e){return e.classList.contains("on")});im.forEach(function(e,j){e.classList.toggle("on",j===(k+1)%im.length)})})},3000)}
 var _rn=render;render=function(){_rn.apply(this,arguments);cardSlides()};
-idbLoad(function(){render();drawCart()});
+function applyLogo(){var im=document.querySelector(".bl");if(!im)return;var p=S.L||"images/logo.png";im.src=LI[p]||(p+(S.lv?"?v="+S.lv:""))}
+function shrinkPng(f,cb){var r=new FileReader();r.onload=function(){var im=new Image();im.onload=function(){var k=Math.min(1,600/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);c.getContext("2d").drawImage(im,0,0,c.width,c.height);cb(c.toDataURL("image/png"))};im.onerror=function(){$("lgmsg").textContent="This file is not a valid image."};im.src=r.result};r.readAsDataURL(f)}
+var newLogo=null;
+$("ap7").onclick=function(){newLogo=null;$("lgi").value="";$("lgmsg").textContent="";$("lgp").src=(document.querySelector(".bl")||{}).src||"";openM("lgm")};
+$("lgi").onchange=function(){var f=this.files[0];if(!f)return;$("lgmsg").textContent="Preparing logo...";shrinkPng(f,function(d){newLogo=d;$("lgp").src=d;$("lgmsg").textContent="Logo ready. Click Save Logo, then Publish to GitHub."})};
+$("lgf").onsubmit=function(e){e.preventDefault();if(!newLogo){$("lgmsg").textContent="Choose a logo image first.";return}
+ var p="images/logo.png";LI[p]=newLogo;idbPut(p,newLogo);addPend(p);S.L=p;S.lv=Date.now();persist();applyLogo();closeAll();openM("ap")};
+applyLogo();
+idbLoad(function(){render();drawCart();applyLogo()});
 /* closing */
 document.querySelectorAll("[data-close]").forEach(function(b){b.onclick=function(){b.closest(".ov").classList.remove("open")}});
 document.querySelectorAll(".ov").forEach(function(o){o.onclick=function(e){if(e.target===o)o.classList.remove("open")}});
