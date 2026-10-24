@@ -211,6 +211,11 @@ footer{background:#3a2e25;color:#f7f2e9;padding:50px 5% 20px;margin-top:50px}
 @media(prefers-reduced-motion:reduce){.wt{animation:none}.who{overflow-x:auto}.track,.pr,.buy,.wi i{transition:none}}
 .bdg{position:absolute;left:9px;top:8px;background:#e85b64;color:#fff;font-size:11px;font-weight:800;padding:4px 9px;border-radius:12px;z-index:1}.bdg.so{background:#444}.pr.so .ph{filter:grayscale(.8);opacity:.7}.ds{color:#999;font-size:12px;font-weight:400}.buy:disabled{background:#999;box-shadow:none;cursor:not-allowed;transform:none}
 .thm{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}.thm button{width:56px;height:56px;padding:0;border:2px solid transparent;border-radius:8px;overflow:hidden;background:#fff}.thm button.on{border-color:var(--pink)}.thm img{width:100%;height:100%;object-fit:cover;display:block}
+.ss{position:absolute;inset:0}.sl{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .8s ease}.sl.on{opacity:1}
+.sa{position:absolute;top:50%;transform:translateY(-50%);width:36px;height:36px;border-radius:50%;border:0;background:rgba(255,255,255,.88);color:var(--brown);font-size:24px;line-height:1;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.25);z-index:2}.sa.l{left:10px}.sa.r{right:10px}
+.sd{position:absolute;bottom:10px;left:0;right:0;display:flex;justify-content:center;gap:6px;z-index:2}.sd i{width:8px;height:8px;border-radius:8px;background:rgba(255,255,255,.65);transition:all .3s}.sd i.on{background:#fff;width:22px}
+#ap6{background:#1f9d55!important;color:#fff!important;box-shadow:0 0 0 3px rgba(31,157,85,.28)}#ap6:hover{background:#178246!important}
+#dl{background:#fff!important;color:var(--brown)!important;border:1.5px solid var(--brown)!important}
 </style>
 </head>
 <body>
@@ -488,8 +493,23 @@ $("grid").onclick=function(e){
 render();
 
 /* product modal */
-function drawThm(k){var a=ims(cur);$("thm").innerHTML=a.length>1?a.map(function(s,i){return '<button type="button" class="'+(i===k?'on':'')+'" data-k="'+i+'" aria-label="Photo '+(i+1)+'"><img src="'+esc(s)+'" alt="" onerror="this.parentNode.remove()"></button>'}).join(""):""}
-$("thm").onclick=function(e){var b=e.target.closest("[data-k]");if(!b)return;var k=+b.dataset.k,a=ims(cur);$("pi").outerHTML=art({g:cur.g,i:cur.i,imgs:[a[k]]}).replace('class="ph"','class="ph" id="pi"');drawThm(k)};
+var SS={t:null,n:0};
+function drawThm(){clearInterval(SS.t);var tk=++SS.n,a=ims(cur),pi=$("pi");$("thm").innerHTML="";
+ if(a.length<2)return;var ok=[],left=a.length;
+ a.forEach(function(src,i){var im=new Image();im.onload=function(){ok[i]=src;fin()};im.onerror=fin;im.src=src});
+ function fin(){if(--left)return;if(tk!==SS.n)return;build(ok.filter(Boolean))}
+ function build(l){if(!l.length)return;pi.style.position="relative";pi.style.overflow="hidden";
+  var d=document.createElement("div");d.className="ss";
+  d.innerHTML=l.map(function(s,i){return '<img class="sl'+(i?'':' on')+'" src="'+esc(s)+'" alt="">'}).join("")+(l.length>1?'<button type="button" class="sa l" aria-label="Previous photo">&#8249;</button><button type="button" class="sa r" aria-label="Next photo">&#8250;</button><div class="sd">'+l.map(function(_,i){return '<i class="'+(i?'':'on')+'"></i>'}).join("")+'</div>':'');
+  pi.appendChild(d);if(l.length<2)return;
+  var k=0,im=d.querySelectorAll(".sl"),dt=d.querySelectorAll(".sd i");
+  function go(n){k=(n+l.length)%l.length;for(var j=0;j<l.length;j++){im[j].classList.toggle("on",j===k);dt[j].classList.toggle("on",j===k)}}
+  function play(){clearInterval(SS.t);SS.t=setInterval(function(){if(!pi.offsetParent){clearInterval(SS.t);return}go(k+1)},3500)}
+  d.querySelector(".sa.l").onclick=function(e){e.stopPropagation();go(k-1);play()};
+  d.querySelector(".sa.r").onclick=function(e){e.stopPropagation();go(k+1);play()};
+  d.onmouseenter=function(){clearInterval(SS.t)};d.onmouseleave=play;
+  var x0=null;d.ontouchstart=function(e){x0=e.touches[0].clientX};d.ontouchend=function(e){if(x0===null)return;var dx=e.changedTouches[0].clientX-x0;x0=null;if(Math.abs(dx)>40){go(dx<0?k+1:k-1);play()}};
+  play()}}
 function openP(id){
  cur=P.filter(function(p){return p.id===id})[0];qty=1;vi=0;
  $("pi").outerHTML=art(cur).replace('class="ph"','class="ph" id="pi"');drawThm(0);$("atc").disabled=$("buy").disabled=!!cur.so;
