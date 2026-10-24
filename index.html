@@ -363,11 +363,6 @@ footer{background:#3a2e25;color:#f7f2e9;padding:50px 5% 20px;margin-top:50px}
  <form id="bf"></form>
 </div></div>
 
-<div class="ov" id="pw"><div class="md" role="dialog" aria-modal="true" aria-label="Change password">
- <div class="mh"><h3>Change Password</h3><button class="x" data-close aria-label="Close">✕</button></div>
- <form id="pf"><div class="fgp"><label for="np">New password (min 6 characters)</label><input id="np" type="password" minlength="6" required autocomplete="new-password"></div>
- <button class="go br" type="submit">Save Password</button><div class="msg" id="pm2" role="status"></div></form>
-</div></div>
 
 <div class="ov" id="pvm"><div class="md big" role="dialog" aria-modal="true" aria-labelledby="pt">
  <div class="pv"><div class="ph" id="pi"></div><div class="thm" id="thm"></div><p style="font-size:12px;color:#666;text-align:center">Preview: 100% Handcrafted</p></div>
@@ -647,8 +642,6 @@ $("bf").onsubmit=function(e){e.preventDefault();
 function openF(){$("fa2").value=F.a;$("fp2").value=F.p;$("fe3").value=F.e;$("fmsg").textContent="";openM("fm")}
 $("fed").onclick=openF;$("ap3").onclick=openF;
 $("ff").onsubmit=function(e){e.preventDefault();S.F=F={a:$("fa2").value.trim(),p:$("fp2").value.trim(),e:$("fe3").value.trim()};persist();rf();closeAll();openM("ap")};
-$("ap4").onclick=function(){$("np").value="";$("pm2").textContent="";openM("pw")};
-$("pf").onsubmit=function(e){e.preventDefault();S.h=hash($("np").value);persist();$("pm2").textContent="Password changed. Download data.js to keep it permanently."};
 $("dl").onclick=function(){persist();
  var a=document.createElement("a");a.href=URL.createObjectURL(new Blob(["window.ORCHIDS_DATA = "+JSON.stringify(noH(),null,1)+";\n"],{type:"text/javascript"}));
  a.download="data.js";document.body.appendChild(a);a.click();a.remove()};
