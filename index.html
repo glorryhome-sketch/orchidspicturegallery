@@ -292,7 +292,7 @@ footer{background:#3a2e25;color:#f7f2e9;padding:50px 5% 20px;margin-top:50px}
   <div class="fgp"><label for="av">Varieties &amp; Prices * (one per line: Name | Offer Price | MRP optional)</label><textarea id="av" required rows="5" placeholder="Mini Size (4X4 INCHES) | 199 | 299"></textarea></div>
   <div class="fgp"><label for="ac">Category</label><select id="ac"></select></div>
   <div class="fgp"><label for="ad2">Description</label><textarea id="ad2" placeholder="Brief description..."></textarea></div>
-  <div class="fgp"><label for="aph">Product photos (select up to 6 together; they auto-download with the right file names to upload on GitHub)</label><input id="aph" type="file" accept="image/*" multiple><div id="apv" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px"></div></div>
+  <div class="fgp"><label for="aph">Product photos (select up to 6 together; they upload automatically when you click Publish to GitHub)</label><input id="aph" type="file" accept="image/*" multiple><div id="apv" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px"></div></div>
   <div class="fgp"><label for="aim">Photo paths on GitHub (auto-filled, one per line, first = main photo)</label><textarea id="aim" rows="3" placeholder="images/products/1.jpg"></textarea></div>
   <button class="go br" type="submit" id="asv">Save Product</button>
   <div class="msg" id="amsg" role="status"></div>
@@ -342,7 +342,7 @@ footer{background:#3a2e25;color:#f7f2e9;padding:50px 5% 20px;margin-top:50px}
   <button class="go gr" id="rs" style="margin:0">Reset to data.js</button>
   <button class="go gr" id="lo" style="margin:0">Logout</button>
  </div>
- <p class="msg">Edits show on this device straight away. To show them to customers: (1) download data.js and replace it in GitHub, (2) upload the downloaded photo files into the images/products folder in GitHub.</p>
+ <p class="msg">Edits show on this device straight away. To show them to customers, click Publish to GitHub (photos and data.js upload automatically).</p>
 </div></div>
 
 <div class="ov" id="gm"><div class="md" role="dialog" aria-modal="true" aria-label="Publish to GitHub">
@@ -611,7 +611,7 @@ $("ap1").onclick=function(){openA()};
 $("aph").onchange=function(){var fs=[].slice.call(this.files,0,6);if(!fs.length)return;newPhotos=[];$("amsg").textContent="Preparing photos...";var id=editId||newId,n=0;
  fs.forEach(function(f,i){shrink(f,function(d){newPhotos[i]=d;n++;if(n===fs.length){
   $("aim").value=fs.map(function(_,k){return "images/products/"+id+(k?"-"+(k+1):"")+".jpg"}).join("\n");prevs(newPhotos);
-  $("amsg").textContent="Photos ready. Click Save Product - "+n+" file(s) will download. Upload them to GitHub in images/products."}})})};
+  $("amsg").textContent=""+n+" photo(s) ready. Click Save Product, then Publish to GitHub."}})})};
 $("af").onsubmit=function(e){e.preventDefault();
  var V=[];$("av").value.split("\n").forEach(function(l){var q=l.split("|"),n=q[0].trim(),pr=Number((q[1]||"").replace(/[^\d.]/g,"")),mr=Number((q[2]||"").replace(/[^\d.]/g,""));if(n&&pr>0)V.push(mr>pr?[n,pr,mr]:[n,pr])});
  if(!V.length){$("amsg").textContent="Add at least one variety like:  Mini Size | 199 | 299";return}
@@ -620,7 +620,7 @@ $("af").onsubmit=function(e){e.preventDefault();
  if(!paths.length)paths=["images/products/"+id+".jpg"];
  if(!newPhotos.length&&old&&old.img&&old.img.indexOf("data:")===0)paths=[old.img];
  var o={n:$("an").value.trim(),c:$("ac").value,d:$("ad2").value.trim(),v:V,p:Math.min.apply(null,V.map(function(v){return v[1]})),img:paths[0],imgs:paths,so:$("aso").checked};
- newPhotos.forEach(function(d,i){if(!paths[i])return;LI[paths[i]]=d;idbPut(paths[i],d);addPend(paths[i]);setTimeout(function(){dlPhoto(d,paths[i].split("/").pop())},i*600)});
+ newPhotos.forEach(function(d,i){if(!paths[i])return;LI[paths[i]]=d;idbPut(paths[i],d);addPend(paths[i])});
  if(editId)Object.assign(prod(editId),o);
  else{o.id=newId;o.i="gift";o.g=["#D9B5D1","#7B3F7A"];P.unshift(o)}
  if(!persist())alert("Browser storage is full. Download data.js and use Reset to data.js.");
