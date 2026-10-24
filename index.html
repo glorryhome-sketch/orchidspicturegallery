@@ -651,8 +651,10 @@ function pend(){try{return JSON.parse(localStorage.getItem("opg_pend"))||[]}catc
 function setPend(a){try{localStorage.setItem("opg_pend",JSON.stringify(a))}catch(e){}}
 function addPend(p){var a=pend();if(a.indexOf(p)<0)a.push(p);setPend(a)}
 function b64(t){return btoa(unescape(encodeURIComponent(t)))}
-function ghPut(r,b,tok,path,content,msg){var u="https://api.github.com/repos/"+r+"/contents/"+path.split("/").map(encodeURIComponent).join("/"),h={Authorization:"Bearer "+tok,Accept:"application/vnd.github+json"};
- return fetch(u+"?ref="+encodeURIComponent(b),{headers:h}).then(function(x){return x.status===200?x.json().then(function(j){return j.sha}):(x.status===404?undefined:Promise.reject(new Error("GitHub error "+x.status+" - check token and repository")))}).then(function(sha){var body={message:msg,content:content,branch:b};if(sha)body.sha=sha;return fetch(u,{method:"PUT",headers:Object.assign({"Content-Type":"application/json"},h),body:JSON.stringify(body)})}).then(function(x){if(!x.ok)return Promise.reject(new Error("GitHub error "+x.status+" while saving "+path))})}
+function ghPut(r,b,tok,path,content,msg,n){n=n||0;var u="https://api.github.com/repos/"+r+"/contents/"+path.split("/").map(encodeURIComponent).join("/"),h={Authorization:"Bearer "+tok,Accept:"application/vnd.github+json"};
+ return fetch(u+"?ref="+encodeURIComponent(b)+"&t="+Date.now(),{headers:h,cache:"no-store"}).then(function(x){return x.status===200?x.json().then(function(j){return j.sha}):(x.status===404?undefined:Promise.reject(new Error("GitHub error "+x.status+" - check token and repository")))}).then(function(sha){var body={message:msg,content:content,branch:b};if(sha)body.sha=sha;return fetch(u,{method:"PUT",headers:Object.assign({"Content-Type":"application/json"},h),body:JSON.stringify(body)})}).then(function(x){
+  if((x.status===409||x.status===422)&&n<4)return new Promise(function(ok){setTimeout(ok,1200*(n+1))}).then(function(){return ghPut(r,b,tok,path,content,msg,n+1)});
+  if(!x.ok)return Promise.reject(new Error("GitHub error "+x.status+" while saving "+path))})}
 $("ap6").onclick=function(){$("gt").value=localStorage.getItem("opg_gt")||"";$("gr").value=localStorage.getItem("opg_gr")||$("gr").value;$("gst").textContent=pend().length+" new photo(s) + data.js ready to publish.";openM("gm")};
 $("gf").onsubmit=function(e){e.preventDefault();var tok=$("gt").value.trim(),r=$("gr").value.trim(),b=$("gb").value.trim()||"main",st=$("gst");
  if(!tok||r.indexOf("/")<1){st.textContent="Enter token and repository.";return}
