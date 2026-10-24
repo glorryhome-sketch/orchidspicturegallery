@@ -36,16 +36,16 @@ window.ORCHIDS_DATA = {
    "imgs": [
     "images/products/1.jpg",
     "images/products/1-2.jpg",
-    "images/products/1-3.jpg",
-    "images/products/1-4.jpg"
+    "images/products/1-3.jpg"
    ],
    "so": false,
-   "img": "images/products/1.jpg"
+   "img": "images/products/1.jpg",
+   "long": ""
   },
   {
    "id": 2,
    "n": "Glow Bottle",
-   "c": "Glow Magic",
+   "c": "Frame Stories",
    "d": "Personalised glowing bottle gift.",
    "i": "bottle",
    "g": [
@@ -220,7 +220,7 @@ window.ORCHIDS_DATA = {
    "s": "Custom frames, books and more"
   }
  ],
- "v": 1792817898421,
+ "v": 1792825382177,
  "C": [
   "Frame Stories",
   "Memory Books",
