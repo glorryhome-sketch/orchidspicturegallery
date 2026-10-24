@@ -459,7 +459,7 @@ function go(i){si=(i+SL.length)%SL.length;$("trk").style.transform="translateX(-
 $("sp").onclick=function(){go(si-1)};$("sn").onclick=function(){go(si+1)};
 $("dots").onclick=function(e){if(e.target.dataset.i)go(+e.target.dataset.i)};
 function drawSlides(){SL=S.B;
- $("trk").innerHTML=SL.map(function(b){return '<div class="slide" style="background:linear-gradient(120deg,#8d4f34,#d9a47a)">'+(b.img?'<img src="'+esc(b.img)+'" alt="'+esc(b.t)+'" onload="this.parentNode.classList.add(\'hasimg\')" onerror="this.remove()">':'')+'<h2>'+esc(b.t)+'</h2><p>'+esc(b.s)+'</p></div>'}).join("");
+ $("trk").innerHTML=SL.map(function(b){return '<div class="slide" style="background:linear-gradient(120deg,#8d4f34,#d9a47a)">'+(b.img?'<img src="'+esc(LI[b.img]||b.img+(S.lv?"?v="+S.lv:""))+'" alt="'+esc(b.t)+'" onload="this.parentNode.classList.add(\'hasimg\')" onerror="this.remove()">':'')+'<h2>'+esc(b.t)+'</h2><p>'+esc(b.s)+'</p></div>'}).join("");
  $("dots").innerHTML=SL.map(function(_,i){return '<button class="dot" aria-label="Slide '+(i+1)+'" data-i="'+i+'"></button>'}).join("");go(0)}
 drawSlides();
 if(!matchMedia("(prefers-reduced-motion:reduce)").matches)setInterval(function(){go(si+1)},4500);
@@ -662,11 +662,24 @@ $("cmf").onsubmit=function(e){e.preventDefault();var n=[],core=CATS.slice(0,3);
  [].forEach.call($("cml").querySelectorAll("input"),function(el){var v=el.value.trim(),o=el.dataset.o;if(!v||n.indexOf(v)>-1||core.indexOf(v)>-1)return;n.push(v);if(o&&o!==v){P.forEach(function(p){if(p.c===o)p.c=v});if(sel===o)sel=v}});
  S.C=n;CATS=core.concat(n);if(CATS.indexOf(sel)<0)sel="All Products";drawCats();persist();render();closeAll();openM("ap")};
 function delP(id){if(!confirm("Delete this product?"))return;S.P=P=P.filter(function(x){return x.id!==id});persist();render();drawCart()}
-$("ap2").onclick=function(){
- $("bf").innerHTML=S.B.map(function(b,i){return '<div class="cb"><h4>Slide '+(i+1)+'</h4><div class="fgp"><label>Image path</label><input data-i="'+i+'" data-k="img" value="'+esc(b.img||"")+'"></div><div class="fgp"><label>Title (shown when there is no image)</label><input data-i="'+i+'" data-k="t" value="'+esc(b.t)+'"></div><div class="fgp"><label>Subtitle</label><input data-i="'+i+'" data-k="s" value="'+esc(b.s)+'"></div></div>'}).join("")+'<button class="go br" type="submit">Save Banners</button>';
- openM("bm")};
-$("bf").onsubmit=function(e){e.preventDefault();
- [].forEach.call($("bf").querySelectorAll("input"),function(el){S.B[+el.dataset.i][el.dataset.k]=el.value.trim()});
+var BN=[],BI={};
+function syncBN(){[].forEach.call($("bf").querySelectorAll("input[data-k]"),function(el){BN[+el.dataset.i][el.dataset.k]=el.value.trim()})}
+function drawBN(){$("bf").innerHTML=BN.map(function(b,i){return '<div class="cb"><h4>Slide '+(i+1)+' <button type="button" class="go gr" data-del="'+i+'" style="width:auto;float:right;margin:0;padding:4px 12px;font-size:12px">Delete</button></h4>'
+ +'<div class="fgp"><label>Banner photo (browse to add or replace)</label><input type="file" accept="image/*" data-file="'+i+'"></div>'
+ +'<div class="fgp"><label>Image path</label><input data-i="'+i+'" data-k="img" value="'+esc(b.img||"")+'"></div>'
+ +'<div class="fgp"><label>Title</label><input data-i="'+i+'" data-k="t" value="'+esc(b.t)+'"></div>'
+ +'<div class="fgp"><label>Subtitle</label><input data-i="'+i+'" data-k="s" value="'+esc(b.s)+'"></div></div>'}).join("")
+ +'<button type="button" class="go gr" id="bnadd" style="margin:6px 0">＋ Add Slide ('+BN.length+'/8)</button><button class="go br" type="submit">Save Banners</button>'}
+function shrinkB(f,cb){var r=new FileReader();r.onload=function(){var im=new Image();im.onload=function(){var k=Math.min(1,1600/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);var x=c.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,c.width,c.height);x.drawImage(im,0,0,c.width,c.height);cb(c.toDataURL("image/jpeg",.85))};im.src=r.result};r.readAsDataURL(f)}
+$("ap2").onclick=function(){BN=JSON.parse(JSON.stringify(S.B));BI={};drawBN();openM("bm")};
+$("bf").onclick=function(e){var d=e.target.closest("[data-del]");
+ if(d){if(BN.length<2){alert("Keep at least one slide.");return}syncBN();BN.splice(+d.dataset.del,1);drawBN();return}
+ if(e.target.id==="bnadd"){if(BN.length>=8){alert("Maximum 8 slides.");return}syncBN();BN.push({img:"images/banner"+(BN.length+1)+".jpg",t:"New slide",s:""});drawBN()}};
+$("bf").onchange=function(e){var el=e.target;if(el.dataset.file===undefined||!el.files[0])return;var i=+el.dataset.file;
+ shrinkB(el.files[0],function(d){syncBN();var p="images/banner"+(i+1)+".jpg";BN[i].img=p;BI[p]=d;drawBN()})};
+$("bf").onsubmit=function(e){e.preventDefault();syncBN();
+ S.B=BN.filter(function(b){return b.img||b.t});if(!S.B.length)S.B=[{img:"",t:"Welcome",s:""}];
+ Object.keys(BI).forEach(function(p){LI[p]=BI[p];idbPut(p,BI[p]);addPend(p);S.lv=Date.now()});
  persist();drawSlides();closeAll();openM("ap")};
 function openF(){$("fa2").value=F.a;$("fp2").value=F.p;$("fe3").value=F.e;$("fmsg").textContent="";openM("fm")}
 $("fed").onclick=openF;$("ap3").onclick=openF;
@@ -708,7 +721,7 @@ $("lgi").onchange=function(){var f=this.files[0];if(!f)return;$("lgmsg").textCon
 $("lgf").onsubmit=function(e){e.preventDefault();if(!newLogo){$("lgmsg").textContent="Choose a logo image first.";return}
  var p="images/logo.png";LI[p]=newLogo;idbPut(p,newLogo);addPend(p);S.L=p;S.lv=Date.now();persist();applyLogo();closeAll();openM("ap")};
 applyLogo();
-idbLoad(function(){render();drawCart();applyLogo()});
+idbLoad(function(){render();drawCart();applyLogo();drawSlides()});
 /* closing */
 document.querySelectorAll("[data-close]").forEach(function(b){b.onclick=function(){b.closest(".ov").classList.remove("open")}});
 document.querySelectorAll(".ov").forEach(function(o){o.onclick=function(e){if(e.target===o)o.classList.remove("open")}});
