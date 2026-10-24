@@ -216,6 +216,7 @@ footer{background:#3a2e25;color:#f7f2e9;padding:50px 5% 20px;margin-top:50px}
 .sd{position:absolute;bottom:10px;left:0;right:0;display:flex;justify-content:center;gap:6px;z-index:2}.sd i{width:8px;height:8px;border-radius:8px;background:rgba(255,255,255,.65);transition:all .3s}.sd i.on{background:#fff;width:22px}
 #ap6{background:#1f9d55!important;color:#fff!important;box-shadow:0 0 0 3px rgba(31,157,85,.28)}#ap6:hover{background:#178246!important}
 #dl{background:#fff!important;color:var(--brown)!important;border:1.5px solid var(--brown)!important}
+.pdesc{margin-top:16px;padding:16px 18px;background:#fffaf2;border:1px solid #eadfce;border-radius:12px;font-size:13.5px;line-height:1.65;color:#3a2f28}.pdesc:empty{display:none}.pdesc h4{font-size:16px;margin:0 0 8px;color:var(--brown)}.pdesc p{margin:7px 0}.pdesc ul{margin:6px 0 6px 4px;padding-left:20px}.pdesc li{margin:4px 0}
 </style>
 </head>
 <body>
@@ -293,10 +294,11 @@ footer{background:#3a2e25;color:#f7f2e9;padding:50px 5% 20px;margin-top:50px}
  <div class="mh"><h3 id="aft">Add New Product</h3><button class="x" data-close aria-label="Close">✕</button></div>
  <form id="af">
   <div class="fgp"><label for="an">Product Name *</label><input id="an" required placeholder="e.g. Magic Mirror"></div>
+  <div class="fgp"><label for="alg">Full description (shown in the product popup, optional)</label><textarea id="alg" rows="8" placeholder="Personalized Photo Frame - Diwali Special Offer 🪔&#10;&#10;**Product Highlights**&#10;- Size: 12 x 8 inches&#10;- Customize with your favourite photo&#10;&#10;Offer valid until 09 November 2026"></textarea><small style="color:#777;font-size:11px">Blank line = new paragraph. Start a line with - for a bullet. **text** = bold. Emojis work.</small></div>
   <div class="fgp"><label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="aso" style="width:auto"> Mark as Sold Out</label></div>
   <div class="fgp"><label for="av">Varieties &amp; Prices * (one per line: Name | Offer Price | MRP optional)</label><textarea id="av" required rows="5" placeholder="Mini Size (4X4 INCHES) | 199 | 299"></textarea></div>
   <div class="fgp"><label for="ac">Category</label><select id="ac"></select></div>
-  <div class="fgp"><label for="ad2">Description</label><textarea id="ad2" placeholder="Brief description..."></textarea></div>
+  <div class="fgp"><label for="ad2">Short description (shown on the product card)</label><textarea id="ad2" placeholder="Brief description..."></textarea></div>
   <div class="fgp"><label for="aph">Product photos (select up to 6 together; they upload automatically when you click Publish to GitHub)</label><input id="aph" type="file" accept="image/*" multiple><div id="apv" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px"></div></div>
   <div class="fgp"><label for="aim">Photo paths on GitHub (auto-filled, one per line, first = main photo)</label><textarea id="aim" rows="3" placeholder="images/products/1.jpg"></textarea></div>
   <button class="go br" type="submit" id="asv">Save Product</button>
@@ -388,10 +390,8 @@ footer{background:#3a2e25;color:#f7f2e9;padding:50px 5% 20px;margin-top:50px}
   <div class="cb"><h4>Customize Your Gift</h4>
    <div class="fgp"><label>Add "Photos" *</label><input type="file" id="cph" multiple accept="image/*" hidden><button type="button" class="up" id="upb">⬆ Upload Photos <span id="pc">(0 Selected)</span></button></div>
    <div class="fgp"><label for="cd">Add "Memorable date" *</label><input type="date" id="cd"></div>
-   <div class="fgp"><label for="cw">Add "Wish With Name" *</label><input id="cw" placeholder="e.g. Happy Birthday Nivetha"></div>
-   <div class="fgp"><label for="cq">Add "5 to 10 line wishes (or) quotes"</label><textarea id="cq" placeholder="Enter your quotes or messages..."></textarea></div>
-   <div class="fgp" style="margin:0"><label for="cs">Add "Song with Movie Name (or) Spotify Song Link"</label><input id="cs" placeholder="Enter song name or Spotify link..."></div>
-  </div>
+   <div class="fgp" style="margin:0"><label for="cq">Add "5 to 10 line wishes (or) quotes"</label><textarea id="cq" placeholder="Enter your quotes or messages..."></textarea></div>
+     </div>
   <div class="pay" role="radiogroup" aria-label="Payment option">
    <b style="font-size:13px">Select Payment Option *</b>
    <label><input type="radio" name="pm" value="Google Pay / PhonePe / UPI" checked> Google Pay / PhonePe / Paytm (UPI)</label>
@@ -401,6 +401,7 @@ footer{background:#3a2e25;color:#f7f2e9;padding:50px 5% 20px;margin-top:50px}
   </div>
   <div class="act"><div class="q"><button type="button" id="qm" aria-label="Decrease">-</button><span id="qn">1</span><button type="button" id="qp" aria-label="Increase">+</button></div>
    <button type="button" class="go" id="atc" style="background:var(--brown)">Add to Cart</button><button type="button" class="go" id="buy">Buy Now</button></div>
+  <div class="pdesc" id="pdsc"></div>
  </div>
 </div></div>
 
@@ -501,6 +502,8 @@ $("grid").onclick=function(e){
 render();
 
 /* product modal */
+function fmtD(t){var out=[],ul=false;String(t||"").split("\n").forEach(function(l){l=l.trim();var m=/^[-\u2022*]\s+(.*)$/.exec(l),h=esc(m?m[1]:l).replace(/\*\*(.+?)\*\*/g,"<b>$1</b>");
+ if(m){if(!ul){out.push("<ul>");ul=true}out.push("<li>"+h+"</li>")}else{if(ul){out.push("</ul>");ul=false}if(l)out.push("<p>"+h+"</p>")}});if(ul)out.push("</ul>");return out.join("")}
 var SS={t:null,n:0};
 function drawThm(){clearInterval(SS.t);var tk=++SS.n,a=ims(cur),pi=$("pi");$("thm").innerHTML="";
  if(a.length<2)return;var ok=[],left=a.length;
@@ -520,9 +523,9 @@ function drawThm(){clearInterval(SS.t);var tk=++SS.n,a=ims(cur),pi=$("pi");$("th
   play()}}
 function openP(id){
  cur=P.filter(function(p){return p.id===id})[0];qty=1;vi=0;
- $("pi").outerHTML=art(cur).replace('class="ph"','class="ph" id="pi"');drawThm(0);$("atc").disabled=$("buy").disabled=!!cur.so;
+ $("pi").outerHTML=art(cur).replace('class="ph"','class="ph" id="pi"');drawThm(0);$("pdsc").innerHTML=cur.long?"<h4>Description</h4>"+fmtD(cur.long):"";$("atc").disabled=$("buy").disabled=!!cur.so;
  $("pt").textContent=cur.n;
- ["cd","cw","cq","cs"].forEach(function(k){$(k).value=""});$("cph").value="";$("pc").textContent="(0 Selected)";
+ ["cd","cq"].forEach(function(k){$(k).value=""});$("cph").value="";$("pc").textContent="(0 Selected)";
  $("vg").innerHTML=VR(cur).map(function(v,i){return '<button type="button" class="vb" data-v="'+i+'"><b>'+inr(v[1])+'</b><span>'+v[0]+'</span></button>'}).join("");
  pv();$("pvm").classList.add("open");
 }
@@ -547,9 +550,7 @@ $("cf").onsubmit=function(e){
  e.preventDefault();
  var v=VR(cur)[vi],n=$("cph").files.length,L=[];
  if($("cd").value)L.push("- Memorable Date: "+$("cd").value);
- if($("cw").value.trim())L.push("- Wish with Name: "+$("cw").value.trim());
  if($("cq").value.trim())L.push("- Quotes/Message: "+$("cq").value.trim());
- if($("cs").value.trim())L.push("- Song/Spotify: "+$("cs").value.trim());
  if(n)L.push("- Photos: "+n+" (I will send them in this chat)");
  var m="*✨ New Order from Orchids Picture Gallery! ✨*\n\n📦 *Product Details:*\n- Name: "+cur.n+"\n- Size: "+v[0]+"\n- Price: "+inr(v[1])+"\n- Quantity: "+qty+"\n💰 *Total:* "+inr(v[1]*qty)+
   (L.length?"\n\n🎨 *Customization:*\n"+L.join("\n"):"")+"\n\n💳 *Payment:* "+pm()+"\n\n👤 *Customer:*\n- Name: "+$("nm").value.trim()+"\n- Phone: "+$("ph").value.trim()+"\n\n🏠 *Delivery Address:*\n"+$("ad").value.trim()+"\n\nPlease confirm my order and share the payment and delivery process.";
@@ -579,7 +580,7 @@ $("cl").onclick=function(e){var m=e.target.dataset;
  drawCart()};
 $("cartb").onclick=function(){$("cart").classList.add("open")};
 $("atc").onclick=function(){
- CART.push({id:cur.id,v:vi,q:qty,d:$("cd").value,w:$("cw").value.trim(),qt:$("cq").value.trim(),s:$("cs").value.trim(),n:$("cph").files.length});
+ CART.push({id:cur.id,v:vi,q:qty,d:$("cd").value,qt:$("cq").value.trim(),n:$("cph").files.length});
  drawCart();$("pvm").classList.remove("open");$("cart").classList.add("open");
 };
 $("cartf").onsubmit=function(e){
@@ -627,7 +628,7 @@ function openA(id){
  var p=id?prod(id):null;editId=id||null;
  newId=P.reduce(function(m,x){return Math.max(m,x.id)},0)+1;
  $("aft").textContent=p?"Edit Product":"Add New Product";
- $("an").value=p?p.n:"";$("ac").value=p?p.c:CATS[3];$("ad2").value=p?p.d:"";$("aso").checked=!!(p&&p.so);
+ $("an").value=p?p.n:"";$("ac").value=p?p.c:CATS[3];$("ad2").value=p?p.d:"";$("alg").value=p&&p.long||"";$("aso").checked=!!(p&&p.so);
  $("av").value=VR(p).map(function(v){return v[0]+" | "+v[1]+(v[2]?" | "+v[2]:"")}).join("\n");
  newPhotos=[];$("aph").value="";
  var r=(p?rawp(p):["images/products/"+newId+".jpg"]).filter(function(x){return x.indexOf("data:")!==0});
@@ -647,7 +648,7 @@ $("af").onsubmit=function(e){e.preventDefault();
  var paths=$("aim").value.split("\n").map(function(x){return x.trim()}).filter(Boolean);
  if(!paths.length)paths=["images/products/"+id+".jpg"];
  if(!newPhotos.length&&old&&old.img&&old.img.indexOf("data:")===0)paths=[old.img];
- var o={n:$("an").value.trim(),c:$("ac").value,d:$("ad2").value.trim(),v:V,p:Math.min.apply(null,V.map(function(v){return v[1]})),img:paths[0],imgs:paths,so:$("aso").checked};
+ var o={n:$("an").value.trim(),c:$("ac").value,d:$("ad2").value.trim(),long:$("alg").value.trim(),v:V,p:Math.min.apply(null,V.map(function(v){return v[1]})),img:paths[0],imgs:paths,so:$("aso").checked};
  newPhotos.forEach(function(d,i){if(!paths[i])return;LI[paths[i]]=d;idbPut(paths[i],d);addPend(paths[i])});
  if(editId)Object.assign(prod(editId),o);
  else{o.id=newId;o.i="gift";o.g=["#D9B5D1","#7B3F7A"];P.unshift(o)}
