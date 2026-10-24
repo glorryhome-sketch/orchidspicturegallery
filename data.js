@@ -99,12 +99,10 @@ window.ORCHIDS_DATA = {
    "p": 499,
    "img": "images/products/3.jpg",
    "imgs": [
-    "images/products/3.jpg",
-    "images/products/3-2.jpg",
-    "images/products/3-3.jpg",
-    "images/products/3-4.jpg"
+    "images/products/3.jpg"
    ],
-   "so": false
+   "so": false,
+   "long": ""
   },
   {
    "id": 4,
@@ -184,23 +182,91 @@ window.ORCHIDS_DATA = {
    ],
    "v": [
     [
-     "Mini Size (4X4 INCHES)",
+     "(4 × 6 inches)",
+     149,
      199
     ],
     [
-     "Medium Size (6X6 INCHES)",
-     349
+     "(5 × 7 inches)",
+     199,
+     249
     ],
     [
-     "Standard Size (A4)",
-     449
+     "(6 × 8 inches)",
+     249,
+     299
     ],
     [
-     "Large Size (A3)",
-     849
+     "(8 × 12 inches / A4)",
+     529,
+     629
+    ],
+    [
+     "(10 × 12 inches)",
+     629,
+     729
+    ],
+    [
+     "(12 × 15 inches)",
+     729,
+     829
+    ],
+    [
+     "(12 × 18 inches)",
+     929,
+     1099
+    ],
+    [
+     "(16 × 20 inches)",
+     1629,
+     1749
+    ],
+    [
+     "(16 × 24 inches)",
+     1829,
+     1949
+    ],
+    [
+     "(18 × 24 inches)",
+     2129,
+     2249
+    ],
+    [
+     "(20 × 24 inches)",
+     2329,
+     2449
+    ],
+    [
+     "(20 × 30 inches)",
+     3629,
+     3799
+    ],
+    [
+     "(24 × 30 inches)",
+     4729,
+     4899
+    ],
+    [
+     "(24 × 36 inches)",
+     5729,
+     5999
+    ],
+    [
+     "(30 × 40 inches)",
+     9429,
+     10999
     ]
    ],
-   "p": 199
+   "p": 149,
+   "long": "",
+   "img": "images/products/6.jpg",
+   "imgs": [
+    "images/products/6.jpg",
+    "images/products/6-2.jpg",
+    "images/products/6-3.jpg",
+    "images/products/6-4.jpg"
+   ],
+   "so": false
   }
  ],
  "F": {
@@ -220,7 +286,7 @@ window.ORCHIDS_DATA = {
    "s": "Custom frames, books and more"
   }
  ],
- "v": 1792825382177,
+ "v": 1792838318942,
  "C": [
   "Frame Stories",
   "Memory Books",
