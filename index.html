@@ -326,7 +326,7 @@ footer{background:#3a2e25;color:#f7f2e9;padding:50px 5% 20px;margin-top:50px}
 
 <div class="ov" id="lg"><div class="md" role="dialog" aria-modal="true" aria-label="Admin login">
  <div class="mh"><h3>Admin Login</h3><button class="x" data-close aria-label="Close">✕</button></div>
- <form id="lf"><div class="fgp"><label for="lp">Password</label><input id="lp" type="password" required autocomplete="current-password"></div>
+ <form id="lf"><div class="fgp"><label for="lp">GitHub token (admin key)</label><input id="lp" type="password" required autocomplete="off" placeholder="github_pat_..."></div>
  <button class="go br" type="submit">Login</button><div class="msg" id="lm" role="status"></div></form>
 </div></div>
 
@@ -337,12 +337,20 @@ footer{background:#3a2e25;color:#f7f2e9;padding:50px 5% 20px;margin-top:50px}
   <button class="go br" id="ap5" style="margin:0">Manage Categories</button>
   <button class="go br" id="ap2" style="margin:0">Edit Banner Slides</button>
   <button class="go br" id="ap3" style="margin:0">Edit Contact Info</button>
-  <button class="go br" id="ap4" style="margin:0">Change Password</button>
+  <button class="go br" id="ap6" style="margin:0">🚀 Publish to GitHub</button>
   <button class="go" id="dl" style="margin:0">⬇ Download data.js (to publish changes)</button>
   <button class="go gr" id="rs" style="margin:0">Reset to data.js</button>
   <button class="go gr" id="lo" style="margin:0">Logout</button>
  </div>
  <p class="msg">Edits show on this device straight away. To show them to customers: (1) download data.js and replace it in GitHub, (2) upload the downloaded photo files into the images/products folder in GitHub.</p>
+</div></div>
+
+<div class="ov" id="gm"><div class="md" role="dialog" aria-modal="true" aria-label="Publish to GitHub">
+ <div class="mh"><h3>Publish to GitHub</h3><button class="x" data-close aria-label="Close">✕</button></div>
+ <form id="gf"><div class="fgp"><label for="gt">GitHub token</label><input id="gt" type="password" autocomplete="off" placeholder="github_pat_..."></div>
+ <div class="fgp"><label for="gr">Repository</label><input id="gr" value="glorryhome-sketch/orchidspicturegallery.in"></div>
+ <div class="fgp"><label for="gb">Branch</label><input id="gb" value="main"></div>
+ <p id="gst" style="font-size:13px;margin:8px 0"></p><button class="go br" type="submit">Publish now</button></form>
 </div></div>
 
 <div class="ov" id="cm"><div class="md" role="dialog" aria-modal="true" aria-label="Manage categories">
@@ -574,15 +582,20 @@ var newPhoto=null;
 function shrink(f,cb){var r=new FileReader();r.onload=function(){var im=new Image();im.onload=function(){var m=900,k=Math.min(1,m/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);var x=c.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,c.width,c.height);x.drawImage(im,0,0,c.width,c.height);cb(c.toDataURL("image/jpeg",.82))};im.onerror=function(){$("amsg").textContent="This file is not a valid image."};im.src=r.result};r.readAsDataURL(f)}
 
 /* Admin button is hidden from customers. Open yourdomain/#admin once on your own device to show it. */
-function admGate(){var k="opg_admin",on=false,asked=/(^|[#?&])admin($|[=&])/i.test(location.hash+location.search);
+var ADMKEY="owner-orchids-9x4k"; /* secret admin link word: change it to anything you like */
+function admGate(){var k="opg_admin",on=false,asked=new RegExp("(^|[#?&])"+ADMKEY+"($|[=&])","i").test(location.hash+location.search);
  try{if(asked)localStorage.setItem(k,"1");on=localStorage.getItem(k)==="1"}catch(e){on=asked}
  $("adm").classList.toggle("show",on);
  if(asked&&!ADM)openM("lg")}
 admGate();window.addEventListener("hashchange",admGate);
 $("adm").onclick=function(){ADM?openM("ap"):openM("lg")};
-$("lf").onsubmit=function(e){e.preventDefault();
- if(hash($("lp").value)===S.h){ADM=true;$("lp").value="";$("lm").textContent="";$("fed").classList.add("show");$("adm").textContent="⚙ Admin Panel";render();openM("ap")}
- else $("lm").textContent="Wrong password. Try again."};
+function noH(){var o=Object.assign({},S);delete o.h;return o}
+try{$("lp").value=localStorage.getItem("opg_gt")||""}catch(e){}
+$("lf").onsubmit=function(e){e.preventDefault();var tok=$("lp").value.trim(),r="glorryhome-sketch/orchidspicturegallery.in",m=$("lm");try{r=localStorage.getItem("opg_gr")||r}catch(x){}
+ m.textContent="Checking...";
+ fetch("https://api.github.com/repos/"+r,{headers:{Authorization:"Bearer "+tok,Accept:"application/vnd.github+json"}}).then(function(x){return x.ok?x.json():Promise.reject()}).then(function(j){if(j.permissions&&!j.permissions.push)return Promise.reject();
+  try{localStorage.setItem("opg_gt",tok);localStorage.setItem("opg_gr",r)}catch(x){}
+  ADM=true;m.textContent="";$("fed").classList.add("show");$("adm").textContent="⚙ Admin Panel";render();openM("ap")}).catch(function(){m.textContent="Token wrong, expired, or no write access to this repository."})};
 $("lo").onclick=function(){ADM=false;$("fed").classList.remove("show");$("adm").textContent="⚙ Admin";try{localStorage.removeItem("opg_admin")}catch(e){}$("adm").classList.remove("show");try{history.replaceState(null,"",location.pathname)}catch(e){}render();closeAll()};
 var editId=null,newId=0,newPhotos=[];
 function dlPhoto(d,n){var a=document.createElement("a");a.href=d;a.download=n;document.body.appendChild(a);a.click();a.remove()}
@@ -612,7 +625,7 @@ $("af").onsubmit=function(e){e.preventDefault();
  if(!paths.length)paths=["images/products/"+id+".jpg"];
  if(!newPhotos.length&&old&&old.img&&old.img.indexOf("data:")===0)paths=[old.img];
  var o={n:$("an").value.trim(),c:$("ac").value,d:$("ad2").value.trim(),v:V,p:Math.min.apply(null,V.map(function(v){return v[1]})),img:paths[0],imgs:paths,so:$("aso").checked};
- newPhotos.forEach(function(d,i){if(!paths[i])return;LI[paths[i]]=d;idbPut(paths[i],d);setTimeout(function(){dlPhoto(d,paths[i].split("/").pop())},i*600)});
+ newPhotos.forEach(function(d,i){if(!paths[i])return;LI[paths[i]]=d;idbPut(paths[i],d);addPend(paths[i]);setTimeout(function(){dlPhoto(d,paths[i].split("/").pop())},i*600)});
  if(editId)Object.assign(prod(editId),o);
  else{o.id=newId;o.i="gift";o.g=["#D9B5D1","#7B3F7A"];P.unshift(o)}
  if(!persist())alert("Browser storage is full. Download data.js and use Reset to data.js.");
@@ -637,10 +650,24 @@ $("ff").onsubmit=function(e){e.preventDefault();S.F=F={a:$("fa2").value.trim(),p
 $("ap4").onclick=function(){$("np").value="";$("pm2").textContent="";openM("pw")};
 $("pf").onsubmit=function(e){e.preventDefault();S.h=hash($("np").value);persist();$("pm2").textContent="Password changed. Download data.js to keep it permanently."};
 $("dl").onclick=function(){persist();
- var a=document.createElement("a");a.href=URL.createObjectURL(new Blob(["window.ORCHIDS_DATA = "+JSON.stringify(S,null,1)+";\n"],{type:"text/javascript"}));
+ var a=document.createElement("a");a.href=URL.createObjectURL(new Blob(["window.ORCHIDS_DATA = "+JSON.stringify(noH(),null,1)+";\n"],{type:"text/javascript"}));
  a.download="data.js";document.body.appendChild(a);a.click();a.remove()};
 $("rs").onclick=function(){if(confirm("Discard changes made in this browser and go back to data.js?")){try{localStorage.removeItem("opg_data");indexedDB.deleteDatabase("opg")}catch(e){}location.reload()}};
 
+function pend(){try{return JSON.parse(localStorage.getItem("opg_pend"))||[]}catch(e){return[]}}
+function setPend(a){try{localStorage.setItem("opg_pend",JSON.stringify(a))}catch(e){}}
+function addPend(p){var a=pend();if(a.indexOf(p)<0)a.push(p);setPend(a)}
+function b64(t){return btoa(unescape(encodeURIComponent(t)))}
+function ghPut(r,b,tok,path,content,msg){var u="https://api.github.com/repos/"+r+"/contents/"+path.split("/").map(encodeURIComponent).join("/"),h={Authorization:"Bearer "+tok,Accept:"application/vnd.github+json"};
+ return fetch(u+"?ref="+encodeURIComponent(b),{headers:h}).then(function(x){return x.status===200?x.json().then(function(j){return j.sha}):(x.status===404?undefined:Promise.reject(new Error("GitHub error "+x.status+" - check token and repository")))}).then(function(sha){var body={message:msg,content:content,branch:b};if(sha)body.sha=sha;return fetch(u,{method:"PUT",headers:Object.assign({"Content-Type":"application/json"},h),body:JSON.stringify(body)})}).then(function(x){if(!x.ok)return Promise.reject(new Error("GitHub error "+x.status+" while saving "+path))})}
+$("ap6").onclick=function(){$("gt").value=localStorage.getItem("opg_gt")||"";$("gr").value=localStorage.getItem("opg_gr")||$("gr").value;$("gst").textContent=pend().length+" new photo(s) + data.js ready to publish.";openM("gm")};
+$("gf").onsubmit=function(e){e.preventDefault();var tok=$("gt").value.trim(),r=$("gr").value.trim(),b=$("gb").value.trim()||"main",st=$("gst");
+ if(!tok||r.indexOf("/")<1){st.textContent="Enter token and repository.";return}
+ try{localStorage.setItem("opg_gt",tok);localStorage.setItem("opg_gr",r)}catch(x){}
+ var list=pend().filter(function(p){return LI[p]&&LI[p].indexOf("data:")===0}),i=0;
+ function nx(){if(i<list.length){var p=list[i++];st.textContent="Uploading photo "+i+" of "+list.length+"...";return ghPut(r,b,tok,p,LI[p].split(",")[1],"Add photo "+p).then(nx)}
+  st.textContent="Publishing data.js...";return ghPut(r,b,tok,"data.js",b64("window.ORCHIDS_DATA = "+JSON.stringify(noH(),null,1)+";\n"),"Update products")}
+ nx().then(function(){setPend([]);st.textContent="Published! Live aaga 1-2 nimisham aagum. Hard refresh pannunga."}).catch(function(err){st.textContent="Failed: "+err.message})};
 idbLoad(function(){render();drawCart()});
 /* closing */
 document.querySelectorAll("[data-close]").forEach(function(b){b.onclick=function(){b.closest(".ov").classList.remove("open")}});

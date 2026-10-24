@@ -13,23 +13,32 @@ window.ORCHIDS_DATA = {
    "v": [
     [
      "Mini Size (4X4 INCHES)",
-     199
+     199,
+     299
     ],
     [
      "Medium Size (6X6 INCHES)",
-     349
+     349,
+     499
     ],
     [
      "Standard Size (A4)",
-     449
+     449,
+     649
     ],
     [
      "Large Size (A3)",
-     849
+     849,
+     1199
     ]
    ],
    "p": 199,
-   "img": "images/products/1.jpg"
+   "imgs": [
+    "images/products/1.jpg",
+    "images/products/1-2.jpg",
+    "images/products/1-3.jpg"
+   ],
+   "so": false
   },
   {
    "id": 2,
@@ -134,7 +143,7 @@ window.ORCHIDS_DATA = {
   {
    "id": 6,
    "n": "King Frame",
-   "c": "Queen's Corner",
+   "c": "King's Corner",
    "d": "Royal frame for the king in your life.",
    "i": "crown",
    "g": [
@@ -159,15 +168,7 @@ window.ORCHIDS_DATA = {
      849
     ]
    ],
-   "p": 199,
-   "img": "images/products/6.jpg",
-   "imgs": [
-    "images/products/6.jpg",
-    "images/products/6-2.jpg",
-    "images/products/6-3.jpg",
-    "images/products/6-4.jpg"
-   ],
-   "so": false
+   "p": 199
   }
  ],
  "F": {
@@ -187,8 +188,7 @@ window.ORCHIDS_DATA = {
    "s": "Custom frames, books and more"
   }
  ],
- "h": "1an0lzzygy3",
- "v": 1792809869859,
+ "v": 1792811789696,
  "C": [
   "Frame Stories",
   "Memory Books",
